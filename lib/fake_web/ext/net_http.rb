@@ -52,6 +52,7 @@ module Net  #:nodoc: all
 
       if FakeWeb.registered_uri?(method, uri)
         @socket = Net::HTTP.socket_type.new
+        FakeWeb.record_request(method, uri, body)
         FakeWeb.response_for(method, uri, &block)
       elsif FakeWeb.allow_net_connect?
         connect_without_fakeweb

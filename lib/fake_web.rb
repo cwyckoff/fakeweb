@@ -145,6 +145,14 @@ module FakeWeb
     end
   end
 
+  def self.record_request(method, uri, request)
+    Registry.instance.register_request(method, uri, request)
+  end
+
+  def self.request_for(method, uri) #:nodoc: :yields: response
+    Registry.instance.request_for(method, uri)
+  end
+
   # call-seq:
   #   FakeWeb.registered_uri?(method, uri)
   #

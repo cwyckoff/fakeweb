@@ -2,7 +2,7 @@ module FakeWeb
   class Registry #:nodoc:
     include Singleton
 
-    attr_accessor :uri_map
+    attr_accessor :uri_map, :request_map
 
     def initialize
       clean_registry
@@ -10,7 +10,12 @@ module FakeWeb
 
     def clean_registry
       self.uri_map = Hash.new { |hash, key| hash[key] = {} }
+      self.request_map = Hash.new { |hash, key| hash[key] = {} }
     end
+
+    def register_request(method, uri, request)
+      request_map[normalize_uri(uri)][method] = request
+    end 
 
     def register_uri(method, uri, options)
       uri_map[normalize_uri(uri)][method] = [*[options]].flatten.collect do |option|
@@ -20,6 +25,10 @@ module FakeWeb
 
     def registered_uri?(method, uri)
       !responses_for(method, uri).empty?
+    end
+
+    def request_for(method, uri)
+      request_map[normalize_uri(uri)][method] || (raise "No request for method #{method} and uri #{uri}")
     end
 
     def response_for(method, uri, &block)
@@ -37,7 +46,6 @@ module FakeWeb
 
       next_response.response(&block)
     end
-
 
     private
 
